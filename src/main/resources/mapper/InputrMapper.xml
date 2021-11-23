@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace = "com.wangjiao.materials.mapper.InputrMapper">
+    <!-- 查询表中所有的数据 -->
+    <select id="queryInputrList" resultType="com.wangjiao.materials.entity.Inputr" >
+        select * from inputr
+    </select>
+    <!-- 根据ID查询表数据,用于修改-->
+    <select id="getInputrById" parameterType="Integer" resultType="com.wangjiao.materials.entity.Inputr">
+        <!-- 数据库增加语句：#{}代表占位符 -->
+        select * from inputr where Ino=#{Ino}
+    </select>
+    <!-- 根据关键字keywords模糊查询,用于搜索功能-->
+    <select id="getInputrByKeywords" parameterType="java.lang.String" resultType="com.wangjiao.materials.entity.Inputr">
+        <!-- 数据库增加语句：#{}代表占位符 -->
+        select * from inputr where 1=1
+        <if test="Keywords!= null and Keywords!= ''">
+            AND inputr.Ino LIKE concat('%',#{Keywords},'%') OR inputr.Mid=(select material.Mid from material where material.Mname LIKE concat('%',#{Keywords},'%') ) OR inputr.Rid=(select repository.Rid from repository where repository.Rname LIKE concat('%',#{Keywords},'%')) OR  inputr.count LIKE concat('%',#{Keywords},'%') OR  inputr.value LIKE concat('%',#{Keywords},'%') OR inputr.dateTime  LIKE concat('%',#{Keywords},'%') OR inputr.deal_Pid=(select person.Pid from person where person.Pname LIKE concat('%',#{Keywords},'%') )  OR inputr.save_Pid=(select person.Pid from person where person.Pname LIKE concat('%',#{Keywords},'%') ) OR inputr.remark  LIKE concat('%',#{Keywords},'%')
+        </if>
+    </select>
+    <!-- 根据ID修改表中数据-->
+    <update id="updateInputr" parameterType="com.wangjiao.materials.entity.Inputr">
+        update  inputr set  inputr.Mid = #{Mid},inputr.Rid=#{Rid},inputr.count=#{count},inputr.value=#{value},inputr.deal_Pid=#{deal_Pid},inputr.save_Pid=#{save_Pid},inputr.remark=#{remark} where Ino = #{Ino}
+    </update>
+    <!-- 根据ID删除表数据 -->
+    <delete id="delInputrById" parameterType="Integer">
+        delete from inputr where Ino = #{Ino}
+    </delete>
+    <!-- 根据IDs批量删除删除表数据 -->
+    <delete id="delInputrByIds" parameterType="int">
+        delete from inputr where Ino in
+        <foreach item="item" collection="Inos" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <!-- 插入数据，这里ID是自动递增的，所以不需要插入 -->
+    <insert id="insertInputr" parameterType="com.wangjiao.materials.entity.Inputr" >
+        insert into inputr(inputr.Mid,inputr.Rid,inputr.count,inputr.value,inputr.deal_Pid,inputr.save_Pid,inputr.remark) values(#{Mid},#{Rid},#{count},#{value},#{deal_Pid},#{save_Pid},#{remark})
+    </insert>
+    <!--根据日期范围查找 -->
+    <select id="getInputrByDate" parameterType="java.lang.String" resultType="com.wangjiao.materials.entity.Inputr">
+        select * from inputr where 1=1
+        <if test="start != null and start != ''"> AND dateTime  <![CDATA[>=]]> #{start}</if>
+        <if test="end != null and end != ''">AND dateTime <![CDATA[<=]]> #{end}</if>
+    </select>
+    <!--根据日期范围和关键字查找 -->
+    <select id="getInputrByDateAndKey" parameterType="java.lang.String" resultType="com.wangjiao.materials.entity.Inputr">
+        select * from inputr where 1=1
+        <if test="start != null and start != ''"> AND dateTime  <![CDATA[>=]]> #{start}</if>
+        <if test="end != null and end != ''">AND dateTime <![CDATA[<=]]> #{end}</if>
+        <if test="keyword!= null and keyword!= ''">
+            AND (inputr.Mid=(select material.Mid from material where material.Mname LIKE concat('%',#{keyword},'%') ) OR inputr.Rid=(select repository.Rid from repository where repository.Rname LIKE concat('%',#{keyword},'%')) OR  inputr.count LIKE concat('%',#{keyword},'%') OR  inputr.value LIKE concat('%',#{keyword},'%') OR inputr.save_Pid=(select person.Pid from person where person.Pname LIKE concat('%',#{keyword},'%') )  OR inputr.deal_Pid=(select person.Pid from person where person.Pname LIKE concat('%',#{keyword},'%') ) OR inputr.remark  LIKE concat('%',#{keyword},'%'))
+        </if>
+    </select>
+</mapper>
